@@ -8,7 +8,7 @@ def extract_quran_pdf(surah_num):
         page = browser.new_page()
         
         print(f"Loading {url}...")
-        # FIX: We are using "load" and giving it 60 seconds so it doesn't crash!
+        # FIX: We are using "load" and 60000ms so it doesn't crash!
         page.goto(url, wait_until="load", timeout=60000)
         
         print("Waiting for React to mount...")
