@@ -8,17 +8,15 @@ def extract_quran_pdf(surah_num):
         page = browser.new_page()
         
         print(f"Loading {url}...")
-        # FIX 1: Change to "load" instead of "networkidle" and increase timeout to 60 seconds
+        # FIX: We are using "load" and giving it 60 seconds so it doesn't crash!
         page.goto(url, wait_until="load", timeout=60000)
         
-        # FIX 2: Manually wait 5 seconds for the Next.js React components to finish mounting
         print("Waiting for React to mount...")
         page.wait_for_timeout(5000) 
         
         print("Scrolling to load all dynamic content...")
         for i in range(10):
             page.evaluate("window.scrollBy(0, 1000);")
-            # Use Playwright's built-in wait instead of the time module
             page.wait_for_timeout(1000) 
             
         print("Preparing to print...")
