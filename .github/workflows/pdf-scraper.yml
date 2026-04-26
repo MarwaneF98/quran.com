@@ -1,1 +1,53 @@
+import requests
+from PIL import Image
+from io import BytesIO
+
+def download_warsh_pdf(start_page, end_page, output_filename="Warsh_Quran.pdf"):
+    print("Starting download...")
+    image_list = []
+    
+    # Loop through the pages you want to download
+    for page_num in range(start_page, end_page + 1):
+        # Format the number to exactly 3 digits (e.g., 001, 015, 604)
+        page_str = str(page_num).zfill(3)
+        print(f"Downloading page {page_str}...")
+        
+        # This is the official high-resolution image server for the Warsh Android app
+        url = f"https://android.quran.com/data/warsh/width_1024/page{page_str}.png"
+        
+        # Set a header so the server knows we are a standard request
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            # Open the downloaded image keeping its transparency (RGBA)
+            img = Image.open(BytesIO(response.content)).convert("RGBA")
+            
+            # Create a brand new, solid white background image of the exact same size
+            white_bg = Image.new("RGB", img.size, (255, 255, 255))
+            
+            # Paste the transparent text layer perfectly on top of the white background
+            white_bg.paste(img, mask=img)
+            
+            # Add the fixed white-background image to our list
+            image_list.append(white_bg)
+        else:
+            print(f"Failed to download page {page_str}. Status code: {response.status_code}")
+            
+    # Stitch the images together into a single PDF
+    if image_list:
+        print(f"\nStitching {len(image_list)} pages into a PDF...")
+        # Save the first image as a PDF and append all the remaining images to it
+        image_list[0].save(
+            output_filename,
+            save_all=True,
+            append_images=image_list[1:]
+        )
+        print(f"Success! Your file '{output_filename}' is saved in your Pydroid folder.")
+    else:
+        print("No pages were downloaded. Check your internet connection.")
+
+if __name__ == "__main__":
+    # Test it by downloading just the first 5 pages!
+    download_warsh_pdf(1, 5)
 
